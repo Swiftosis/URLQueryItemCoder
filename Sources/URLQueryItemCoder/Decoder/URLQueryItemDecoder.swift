@@ -5,16 +5,16 @@
 //  Created by Kyle Hughes on 1/17/23.
 //
 
-import Combine
 import Foundation
+
 
 /// An object that decodes instances of a data type from `URLQueryItem` name-value pairs.
 public struct URLQueryItemDecoder {
     /// The strategies used by this decoder for decoding `Decodable` values.
     public var strategies: DecodingStrategies
-    
+
     // MARK: Public Initialization
-    
+
     /// Creates a new, reusable `URLQueryItem` decoder.
     ///
     /// The default decoding strategies are used if none are supplied.
@@ -41,7 +41,7 @@ public struct URLQueryItemDecoder {
             )
         )
     }
-    
+
     /// Creates a new, reusable `URLQueryItem` decoder..
     ///
     /// - Parameter strategies: The strategies for this decoder to use.
@@ -49,18 +49,18 @@ public struct URLQueryItemDecoder {
     public init(strategies: DecodingStrategies) {
         self.strategies = strategies
     }
-    
+
     // MARK: Private Instance Interface
-    
+
     private func decodeToIntermediateRepresentation(
         from queryItems: [URLQueryItem]
     ) throws -> DecodingContainer<String> {
         let codingPath: [StringCodingKey] = []
-        
+
         guard let firstQueryItem = queryItems.first else {
             return .empty(at: codingPath, using: strategies)
         }
-        
+
         guard
             let firstQueryItemKeyComponents = firstQueryItem.name.removingPercentEncoding?.components(separatedBy: "."),
             let firstQueryItemFirstKeyComponents = firstQueryItemKeyComponents.first,
@@ -71,15 +71,15 @@ public struct URLQueryItemDecoder {
                 configuration: strategies
             )
             singleValueContainer.store(firstQueryItem.value?.removingPercentEncoding)
-            
+
             return .singleValue(singleValueContainer)
         }
-        
+
         let multiValueContainer = DecodingContainer<String>.MultiValue(
             codingPath: codingPath,
             configuration: strategies
         )
-        
+
         for queryItem in queryItems {
             guard let keyComponents = queryItem.name.removingPercentEncoding?.components(separatedBy: ".") else {
                 throw DecodingError.dataCorrupted(
@@ -93,16 +93,16 @@ public struct URLQueryItemDecoder {
             }
 
             let lastKeyComponentIndex = keyComponents.index(before: keyComponents.endIndex)
-            
+
             var currentCodingPath = codingPath
             var currentMultiValueContainer = multiValueContainer
-            
+
             for index in keyComponents.indices {
                 let keyComponent = keyComponents[index]
-                
+
                 let codingKey = StringCodingKey(stringValue: keyComponent)
                 currentCodingPath.append(codingKey)
-                
+
                 if index == lastKeyComponentIndex {
                     let singleValueContainer = DecodingContainer<String>.SingleValue(
                         codingPath: currentCodingPath,
@@ -134,16 +134,16 @@ public struct URLQueryItemDecoder {
                 }
             }
         }
-        
+
         return .multiValue(multiValueContainer)
     }
 }
 
 // MARK: - TopLevelDecoder Extension
 
-extension URLQueryItemDecoder: TopLevelDecoder {
+extension URLQueryItemDecoder {
     // MARK: Public Instance Interface
-    
+
     /// Decodes an instance of the indicated type.
     ///
     /// - Parameter type: The type to decode the query items into.
@@ -155,7 +155,7 @@ extension URLQueryItemDecoder: TopLevelDecoder {
     ) throws -> Value where Value: Decodable {
         let container = try decodeToIntermediateRepresentation(from: queryItems)
         let lowLevelDecoder = LowLevelDecoder(container: container)
-        
+
         return try lowLevelDecoder.decodeWithSpecialTreatment(as: type)
     }
 }
