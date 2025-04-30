@@ -118,6 +118,7 @@ let query = try! decoder.decode(GetPostsQuery.self, from: queryItems)
 - macOS
 - tvOS
 - watchOS
+- Linux
 
 ## Requirements
 
@@ -129,7 +130,7 @@ let query = try! decoder.decode(GetPostsQuery.self, from: queryItems)
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/kylehughes/URLQueryItemCoder.git", .upToNextMajor(from: "1.0.0")),
+    .package(url: "https://github.com/Swiftosis/URLQueryItemCoder.git", from: "1.0.1"),
 ]
 ```
 
@@ -144,11 +145,7 @@ URLQueryItemCoder is not accepting source contributions at this time. Bug report
 ## Author
 
 [Kyle Hughes](https://kylehugh.es)
-
-[![my Mastodon][social_image]][social_url]
-
-[social_image]: https://img.shields.io/mastodon/follow/109356914477272810?domain=https%3A%2F%2Fmister.computer&style=social
-[social_url]: https://mister.computer/@kyle
+Linux compatibility by [Árpád Goretity](https://goretity.com)
 
 ## License
 
